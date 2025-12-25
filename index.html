@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVault - Your Game Discovery Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: rgba(20, 20, 40, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        nav button:hover {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+        }
+
+        nav button.active {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #000;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 2rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: none;
+        }
+
+        .tabs.active {
+            display: block;
+        }
+
+        /* Browse Section */
+        .browse-section {
+            margin-bottom: 2rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filters input, .filters select {
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: #fff;
+            border-radius: 4px;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
+        .filters input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .filters select option {
+            background: #16213e;
+            color: #fff;
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .sort-btn {
+            padding: 0.75rem 1rem;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            color: #00d4ff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sort-btn:hover, .sort-btn.active {
+            background: rgba(0, 212, 255, 0.4);
+            border-color: #00d4ff;
+        }
+
+        /* Games Grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card:hover {
+            border-color: rgba(0, 212, 255, 0.6);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .game-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .favorite-btn:hover {
+            background: rgba(0, 212, 255, 0.8);
+            transform: scale(1.1);
+        }
+
+        .favorite-btn.favorited {
+            color: #ff6b6b;
+        }
+
+        .game-info {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .game-platform {
+            font-size: 0.8rem;
+            color: #00d4ff;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-release {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 1rem;
+        }
+
+        .game-description {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.4;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .game-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            color: #00d4ff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.3);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .pagination button {
+            padding: 0.75rem 1rem;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.5);
+            color: #00d4ff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover, .pagination button.active {
+            background: rgba(0, 212, 255, 0.4);
+            border-color: #00d4ff;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #00d4ff;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 212, 255, 0.2);
+            border-top: 4px solid #00d4ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Settings */
+        .settings-grid {
+            display: grid;
+            gap: 2rem;
+            max-width: 800px;
+        }
+
+        .setting-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .setting-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #00d4ff;
+        }
+
+        .setting-description {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 212, 255, 0.2);
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #00d4ff;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 200;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #16213e;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            color: #00d4ff;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #00d4ff;
+        }
+
+        /* Game Detail */
+        .game-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .game-detail-image {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-detail-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .game-detail-info h2 {
+            color: #00d4ff;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-detail-info p {
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+        }
+
+        .giveaway-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b6b, #ff5252);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-label {
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        /* Search Suggestions */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(22, 33, 62, 0.95);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 50;
+        }
+
+        .search-suggestions.active {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .filters input, .filters select {
+                width: 100%;
+            }
+
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">🎮 GameVault</div>
+            <nav>
+                <button class="nav-btn active" data-tab="browse">Browse Games</button>
+                <button class="nav-btn" data-tab="favorites">❤️ Favorites</button>
+                <button class="nav-btn" data-tab="giveaways">🎁 Free Giveaways</button>
+                <button class="nav-btn" data-tab="settings">⚙️ Settings</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Browse Tab -->
+        <div id="browse" class="tabs active">
+            <div class="browse-section">
+                <h2 style="margin-bottom: 1.5rem; color: #00d4ff;">Discover Amazing Games</h2>
+                
+                <div class="filters">
+                    <div style="position: relative; flex: 1; min-width: 200px;">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Search games by name..."
+                            style="width: 100%;"
+                        >
+                        <div id="searchSuggestions" class="search-suggestions"></div>
+                    </div>
+                    <select id="platformFilter">
+                        <option value="">All Platforms</option>
+                        <option value="PC">PC</option>
+                        <option value="Browser">Browser</option>
+                    </select>
+                    <div class="sort-buttons">
+                        <button class="sort-btn active" data-sort="date">Newest</button>
+                        <button class="sort-btn" data-sort="name">A-Z</button>
+                    </div>
+                </div>
+
+                <div id="gamesContainer" class="games-grid"></div>
+                <div id="paginationContainer" class="pagination"></div>
+            </div>
+        </div>
+
+        <!-- Favorites Tab -->
+        <div id="favorites" class="tabs">
+            <h2 style="margin-bottom: 1.5rem; color: #00d4ff;">Your Favorite Games</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="favoriteCount">0</div>
+                    <div class="stat-label">Games Favorited</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalTime">0</div>
+                    <div class="stat-label">Estimated Hours</div>
+                </div>
+            </div>
+            <div id="favoritesContainer" class="games-grid"></div>
+            <div id="emptyFavorites" class="empty-state">
+                <div class="empty-state-icon">💔</div>
+                <h3>No Favorites Yet</h3>
+                <p>Start adding your favorite games from the Browse section!</p>
+            </div>
+        </div>
+
+        <!-- Giveaways Tab -->
+        <div id="giveaways" class="tabs">
+            <h2 style="margin-bottom: 1.5rem; color: #00d4ff;">Free Game Giveaways</h2>
+            <div class="filters">
+                <select id="platformFilterGiveaway">
+                    <option value="">All Platforms</option>
+                    <option value="PC">PC</option>
+                    <option value="Browser">Browser</option>
+                </select>
+                <button class="sort-btn active" onclick="loadGiveaways()">Refresh Giveaways</button>
+            </div>
+            <div id="giveawaysContainer" class="games-grid"></div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tabs">
+            <h2 style="margin-bottom: 1.5rem; color: #00d4ff;">Settings</h2>
+            <div class="settings-grid">
+                <div class="setting-card">
+                    <div class="setting-title">Theme</div>
+                    <div class="setting-description">Choose your preferred theme</div>
+                    <select id="themeSelect" style="padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); color: #fff; border-radius: 4px; width: 100%;">
+                        <option value="dark">Dark Mode</option>
+                        <option value="light">Light Mode</option>
+                    </select>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-title">Notifications</div>
+                    <div class="setting-description">Receive alerts for new giveaways</div>
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="notificationToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span>Enable Notifications</span>
+                    </div>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-title">Data & Cache</div>
+                    <div class="setting-description">Manage your stored data</div>
+                    <button class="btn btn-secondary" onclick="clearCache()" style="width: 100%;">Clear Cache</button>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-title">Items Per Page</div>
+                    <div class="setting-description">Number of games to display per page</div>
+                    <input type="number" id="itemsPerPage" min="6" max="50" value="12" style="padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); color: #fff; border-radius: 4px; width: 100%;">
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-title">About GameVault</div>
+                    <div class="setting-description">Version 1.0.0</div>
+                    <p style="color: rgba(255, 255, 255, 0.6); margin-top: 0.5rem;">GameVault is your ultimate game discovery platform powered by the GamerPower API. Find the best games, track free giveaways, and manage your collection.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Detail Modal -->
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="close-btn" onclick="closeGameModal()">✕</button>
+            </div>
+            <div id="gameDetailContainer" class="game-detail"></div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        const state = {
+            allGames: [],
+            favorites: JSON.parse(localStorage.getItem('gamevault_favorites')) || [],
+            currentPage: 1,
+            itemsPerPage: parseInt(localStorage.getItem('gamevault_itemsPerPage')) || 12,
+            searchQuery: '',
+            platformFilter: '',
+            sortBy: 'date',
+            giveawayFilter: '',
+            notificationsEnabled: JSON.parse(localStorage.getItem('gamevault_notifications')) !== false,
+        };
+
+        const API_BASE = 'https://www.gamerpower.com/api/giveaways';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeEventListeners();
+            loadGames();
+            updateFavoritesDisplay();
+            restoreSettings();
+        });
+
+        function initializeEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', switchTab);
+            });
+
+            // Search
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+            document.getElementById('searchInput').addEventListener('keydown', handleSearchKeydown);
+
+            // Filters
+            document.getElementById('platformFilter').addEventListener('change', (e) => {
+                state.platformFilter = e.target.value;
+                state.currentPage = 1;
+                filterAndDisplayGames();
+            });
+
+            document.getElementById('platformFilterGiveaway').addEventListener('change', (e) => {
+                state.giveawayFilter = e.target.value;
+                loadGiveaways();
+            });
+
+            // Sort buttons
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.addEventListener('click', handleSort);
+            });
+
+            // Settings
+            document.getElementById('itemsPerPage').addEventListener('change', (e) => {
+                state.itemsPerPage = parseInt(e.target.value);
+                localStorage.setItem('gamevault_itemsPerPage', state.itemsPerPage);
+                state.currentPage = 1;
+                filterAndDisplayGames();
+            });
+
+            document.getElementById('notificationToggle').addEventListener('change', (e) => {
+                state.notificationsEnabled = e.target.checked;
+                localStorage.setItem('gamevault_notifications', state.notificationsEnabled);
+            });
+
+            document.getElementById('themeSelect').addEventListener('change', (e) => {
+                applyTheme(e.target.value);
+                localStorage.setItem('gamevault_theme', e.target.value);
+            });
+
+            // Close modal on outside click
+            document.getElementById('gameModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('gameModal')) {
+                    closeGameModal();
+                }
+            });
+
+            // Close search suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#searchInput') && !e.target.closest('#searchSuggestions')) {
+                    document.getElementById('searchSuggestions').classList.remove('active');
+                }
+            });
+        }
+
+        async function loadGames() {
+            const container = document.getElementById('gamesContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading games...</p></div>';
+
+            try {
+                // Fetch giveaways and convert to game format
+                const response = await fetch(`${API_BASE}?status=active`);
+                const giveaways = await response.json();
+
+                state.allGames = giveaways.slice(0, 100).map((game, index) => ({
+                    id: game.id || index,
+                    title: game.title,
+                    platform: game.platform || 'PC',
+                    releaseDate: game.open_giveaway_date || new Date().toISOString().split('T')[0],
+                    description: game.description || 'Exciting game available now!',
+                    image: game.thumbnail || '🎮',
+                    url: game.open_giveaway_url || '#',
+                    worth: game.worth || 'Free',
+                    isGiveaway: true,
+                }));
+
+                filterAndDisplayGames();
+            } catch (error) {
+                console.error('Error loading games:', error);
+                container.innerHTML = '<div class="no-results">Failed to load games. Please try again later.</div>';
+            }
+        }
+
+        async function loadGiveaways() {
+            const container = document.getElementById('giveawaysContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading giveaways...</p></div>';
+
+            try {
+                const response = await fetch(`${API_BASE}?status=active`);
+                const giveaways = await response.json();
+
+                let filtered = giveaways;
+                if (state.giveawayFilter) {
+                    filtered = giveaways.filter(g => (g.platform || 'PC').includes(state.giveawayFilter));
+                }
+
+                if (filtered.length === 0) {
+                    container.innerHTML = '<div class="no-results">No giveaways available with selected filters.</div>';
+                    return;
+                }
+
+                container.innerHTML = filtered.map(game => createGameCard({
+                    id: game.id,
+                    title: game.title,
+                    platform: game.platform || 'PC',
+                    releaseDate: game.open_giveaway_date,
+                    description: game.description || 'Limited time giveaway!',
+                    image: game.thumbnail || '🎮',
+                    url: game.open_giveaway_url,
+                    worth: game.worth || 'Free',
+                    isGiveaway: true,
+                })).join('');
+
+                attachCardEventListeners();
+            } catch (error) {
+                console.error('Error loading giveaways:', error);
+                container.innerHTML = '<div class="no-results">Failed to load giveaways. Please try again later.</div>';
+            }
+        }
+
+        function filterAndDisplayGames() {
+            let filtered = state.allGames;
+
+            // Search filter
+            if (state.searchQuery) {
+                filtered = filtered.filter(game =>
+                    game.title.toLowerCase().includes(state.searchQuery.toLowerCase())
+                );
+            }
+
+            // Platform filter
+            if (state.platformFilter) {
+                filtered = filtered.filter(game =>
+                    game.platform.includes(state.platformFilter)
+                );
+            }
+
+            // Sort
+            if (state.sortBy === 'date') {
+                filtered.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
+            } else if (state.sortBy === 'name') {
+                filtered.sort((a, b) => a.title.localeCompare(b.title));
+            }
+
+            // Pagination
+            const totalPages = Math.ceil(filtered.length / state.itemsPerPage);
+            const start = (state.currentPage - 1) * state.itemsPerPage;
+            const end = start + state.itemsPerPage;
+            const paginated = filtered.slice(start, end);
+
+            // Display
+            const container = document.getElementById('gamesContainer');
+            if (paginated.length === 0) {
+                container.innerHTML = '<div class="no-results">No games found matching your criteria.</div>';
+            } else {
+                container.innerHTML = paginated.map(game => createGameCard(game)).join('');
+                attachCardEventListeners();
+            }
+
+            // Pagination buttons
+            displayPagination(totalPages);
+        }
+
+        function createGameCard(game) {
+            const isFavorited = state.favorites.some(fav => fav.id === game.id);
+            return `
+                <div class="game-card" data-game-id="${game.id}">
+                    <div class="game-image">
+                        ${typeof game.image === 'string' && game.image.startsWith('http') 
+                            ? `<img src="${game.image}" alt="${game.title}" onerror="this.replaceWith(document.createTextNode('🎮'))">` 
+                            : game.image}
+                    </div>
+                    <button class="favorite-btn ${isFavorited ? 'favorited' : ''}" data-game-id="${game.id}" title="Add to favorites">
+                        ${isFavorited ? '❤️' : '🤍'}
+                    </button>
+                    <div class="game-info">
+                        <div class="game-title">${game.title}</div>
+                        <div class="game-platform">${game.platform}</div>
+                        <div class="game-release">${new Date(game.releaseDate).toLocaleDateString()}</div>
+                        <div class="game-description">${game.description.substring(0, 80)}...</div>
+                        ${game.isGiveaway ? '<div class="giveaway-badge">🎁 Free Giveaway</div>' : ''}
+                        <div class="game-actions">
+                            <button class="btn btn-primary view-btn" data-game-id="${game.id}">View Details</button>
+                            <button class="btn btn-secondary" onclick="window.open('${game.url}', '_blank')">Visit</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function attachCardEventListeners() {
+            // Favorite buttons
+            document.querySelectorAll('.favorite-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFavorite(parseInt(btn.dataset.gameId));
+                });
+            });
+
+            // View details
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const gameId = parseInt(btn.dataset.gameId);
+                    const game = state.allGames.find(g => g.id === gameId);
+                    if (game) {
+                        showGameModal(game);
+                    }
+                });
+            });
+        }
+
+        function displayPagination(totalPages) {
+            const container = document.getElementById('paginationContainer');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            if (state.currentPage > 1) {
+                html += `<button onclick="state.currentPage = 1; filterAndDisplayGames();">First</button>`;
+                html += `<button onclick="state.currentPage--; filterAndDisplayGames();">← Prev</button>`;
+            }
+
+            for (let i = Math.max(1, state.currentPage - 2); i <= Math.min(totalPages, state.currentPage + 2); i++) {
+                html += `<button ${i === state.currentPage ? 'class="active"' : ''} onclick="state.currentPage = ${i}; filterAndDisplayGames();">${i}</button>`;
+            }
+
+            if (state.currentPage < totalPages) {
+                html += `<button onclick="state.currentPage++; filterAndDisplayGames();">Next →</button>`;
+                html += `<button onclick="state.currentPage = ${totalPages}; filterAndDisplayGames();">Last</button>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function handleSearch(e) {
+            state.searchQuery = e.target.value;
+            state.currentPage = 1;
+
+            // Show suggestions
+            if (state.searchQuery) {
+                const suggestions = state.allGames
+                    .filter(g => g.title.toLowerCase().includes(state.searchQuery.toLowerCase()))
+                    .slice(0, 5);
+
+                const suggestionsContainer = document.getElementById('searchSuggestions');
+                if (suggestions.length > 0) {
+                    suggestionsContainer.innerHTML = suggestions.map(game =>
+                        `<div class="suggestion-item" onclick="document.getElementById('searchInput').value = '${game.title}'; state.searchQuery = '${game.title}'; filterAndDisplayGames();">${game.title}</div>`
+                    ).join('');
+                    suggestionsContainer.classList.add('active');
+                } else {
+                    suggestionsContainer.classList.remove('active');
+                }
+            } else {
+                document.getElementById('searchSuggestions').classList.remove('active');
+            }
+
+            filterAndDisplayGames();
+        }
+
+        function handleSearchKeydown(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchSuggestions').classList.remove('active');
+                filterAndDisplayGames();
+            }
+        }
+
+        function handleSort(e) {
+            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            state.sortBy = e.target.dataset.sort;
+            state.currentPage = 1;
+            filterAndDisplayGames();
+        }
+
+        function toggleFavorite(gameId) {
+            const game = state.allGames.find(g => g.id === gameId);
+            if (!game) return;
+
+            const index = state.favorites.findIndex(fav => fav.id === gameId);
+            if (index === -1) {
+                state.favorites.push(game);
+            } else {
+                state.favorites.splice(index, 1);
+            }
+
+            localStorage.setItem('gamevault_favorites', JSON.stringify(state.favorites));
+            updateFavoritesDisplay();
+
+            // Update UI
+            filterAndDisplayGames();
+            updateAllGameCards();
+        }
+
+        function updateAllGameCards() {
+            document.querySelectorAll('.favorite-btn').forEach(btn => {
+                const gameId = parseInt(btn.dataset.gameId);
+                const isFavorited = state.favorites.some(fav => fav.id === gameId);
+                btn.classList.toggle('favorited', isFavorited);
+                btn.textContent = isFavorited ? '❤️' : '🤍';
+            });
+        }
+
+        function updateFavoritesDisplay() {
+            const container = document.getElementById('favoritesContainer');
+            const emptyState = document.getElementById('emptyFavorites');
+            const countElement = document.getElementById('favoriteCount');
+            const timeElement = document.getElementById('totalTime');
+
+            countElement.textContent = state.favorites.length;
+            timeElement.textContent = Math.round(state.favorites.length * 15);
+
+            if (state.favorites.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+            } else {
+                container.innerHTML = state.favorites.map(game => createGameCard(game)).join('');
+                attachCardEventListeners();
+                emptyState.style.display = 'none';
+            }
+        }
+
+        function showGameModal(game) {
+            const modal = document.getElementById('gameModal');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('gameDetailContainer');
+
+            title.textContent = game.title;
+            content.innerHTML = `
+                <div class="game-detail-image">
+                    ${typeof game.image === 'string' && game.image.startsWith('http') 
+                        ? `<img src="${game.image}" alt="${game.title}" onerror="this.replaceWith(document.createTextNode('🎮'))">` 
+                        : game.image}
+                </div>
+                <div class="game-detail-info">
+                    <h2>${game.title}</h2>
+                    <div class="info-row">
+                        <span class="info-label">Platform:</span>
+                        <span>${game.platform}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Release Date:</span>
+                        <span>${new Date(game.releaseDate).toLocaleDateString()}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Worth:</span>
+                        <span>${game.worth}</span>
+                    </div>
+                    ${game.isGiveaway ? '<div class="giveaway-badge">🎁 Free Giveaway Available</div>' : ''}
+                    <h3 style="margin-top: 1.5rem; color: #00d4ff; margin-bottom: 0.5rem;">Description</h3>
+                    <p>${game.description}</p>
+                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                        <button class="btn btn-primary" onclick="window.open('${game.url}', '_blank'); closeGameModal();" style="flex: 1;">Open Game Page</button>
+                        <button class="btn btn-secondary" onclick="toggleFavorite(${game.id}); closeGameModal();" style="flex: 1;">
+                            ${state.favorites.some(f => f.id === game.id) ? '❤️ Remove from Favorites' : '🤍 Add to Favorites'}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeGameModal() {
+            document.getElementById('gameModal').classList.remove('active');
+        }
+
+        function switchTab(e) {
+            const tabName = e.target.dataset.tab;
+
+            // Update active button
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+
+            // Update active tab
+            document.querySelectorAll('.tabs').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            // Load giveaways when switching to that tab
+            if (tabName === 'giveaways') {
+                loadGiveaways();
+            }
+        }
+
+        function restoreSettings() {
+            const theme = localStorage.getItem('gamevault_theme') || 'dark';
+            document.getElementById('themeSelect').value = theme;
+            applyTheme(theme);
+
+            const notifications = JSON.parse(localStorage.getItem('gamevault_notifications'));
+            if (notifications !== null) {
+                document.getElementById('notificationToggle').checked = notifications;
+            }
+
+            document.getElementById('itemsPerPage').value = state.itemsPerPage;
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.body.style.background = 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)';
+                document.body.style.color = '#333';
+            } else {
+                document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
+                document.body.style.color = '#fff';
+            }
+        }
+
+        function clearCache() {
+            localStorage.clear();
+            state.favorites = [];
+            alert('Cache cleared! Refresh the page to reset to defaults.');
+            location.reload();
+        }
+
+        // Auto-load giveaways check periodically
+        setInterval(() => {
+            if (state.notificationsEnabled && document.getElementById('giveaways').classList.contains('active')) {
+                console.log('Checking for new giveaways...');
+            }
+        }, 300000); // Check every 5 minutes
+    </script>
+</body>
+</html>
